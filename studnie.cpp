@@ -5,7 +5,7 @@
 long double distance(const point& p1, const point &p2) {
     long double dx = (long double)( p2.x - p1.x);
     long double dy = (long double)( p2.y - p1.y);
-    return std::sqrtl( dx * dx + dy * dy );
+    return std::sqrt( dx * dx + dy * dy );
 }
 
 result mockProgram(const task &problem) {

@@ -9,7 +9,7 @@ BUILD_DIR=./build
 
 
 all: 
-	$(MAKE) external; 
+	$(MAKE) external
 	$(CC) -I $(INCLUDES) -g --std=c++14 $(BUILD_DIR)/cargs.o studnie.cpp main.cpp -o studnie
 
 external:
