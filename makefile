@@ -5,7 +5,7 @@ INCLUDES=./external_libraries/include
 
 BUILD_DIR=./build
 
-.PHONY = all external
+.PHONY = all external clean
 
 
 all: 
@@ -14,3 +14,7 @@ all:
 
 external:
 	$(CC) -I $(INCLUDES) -g -c ./external_libraries/src/cargs.c -o $(BUILD_DIR)/cargs.o
+
+clean:
+	rm $(BUILD_DIR)/*
+	rm studnie

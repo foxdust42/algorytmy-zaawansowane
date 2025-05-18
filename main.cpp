@@ -5,7 +5,7 @@
 
 #include "external_libraries/include/cargs.h"
 
-#include "studnie.h"
+#include "studnie.hpp"
 
 static struct cag_option options[] = {
     {
@@ -112,10 +112,9 @@ int main(int argc, char *argv[])
     
     std::vector<result> results;
 
-
     for (auto &&task : tasks)
     {
-        results.push_back(mockProgram(task));
+        results.push_back(studnie2(task));
     }
 
     write_results(outfile, results);
