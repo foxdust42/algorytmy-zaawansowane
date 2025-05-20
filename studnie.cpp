@@ -698,22 +698,33 @@ result studnie2(const task &t) {
             //zero is covered
             continue;
         }
-        //zero is uncovered
-        marks[z.stud][z.dom] &= Mark::NONE;
-        if((mark_rows[z.stud] & Mark::STAR) == 0) {
-            uncovered_zero = z;
-            // there is no starred zero in this row
-            goto step2; 
-        }
+        //zero is uncovered -> prime it
+        marks[z.stud][z.dom] |= Mark::PRIME;
+
+        
+
+        // if((mark_rows[z.stud] & Mark::STAR) == 0) {
+        //     uncovered_zero = z;
+        //     // there is no starred zero in this row
+        //     goto step2; 
+        // }
         //there is a starred zero in this row
+        bool has_star = false;
         for (size_t col = 0; col < N; col++)
         {
             if ((marks[z.stud][col] & Mark::STAR) != 0)
             {
+                // there is a starred zero in this row
                 // cover the starred zero's row and uncover column
-                mark_rows[z.stud] &= Mark::COVER;
+                mark_rows[z.stud] |= Mark::COVER;
                 mark_cols[col] &= ~Mark::COVER;
+                has_star = true;
+                break;
             }
+        }
+        if (!has_star) {
+            uncovered_zero = z;
+            goto step2;
         }
     }
     // we have covered all zeros
@@ -757,7 +768,7 @@ step2:
         // if none -> sequence is complete
         for (size_t row = 0; row < N; row++)
         {
-            if (marks[row][zero_seq[zero_seq.size()-1].dom])
+            if ((marks[row][zero_seq[zero_seq.size()-1].dom] & Mark::STAR) != 0)
             {
                 found_0st = true;
                 row_0st = row;
@@ -776,7 +787,7 @@ step2:
 
         for (size_t col = 0; col < N; col++)
         {
-            if (marks[zero_seq[zero_seq.size()-1].stud][col])
+            if ((marks[zero_seq[zero_seq.size()-1].stud][col] & Mark::PRIME) != 0)
             {
                 found_0pr = true;
                 col_0pr = col;
@@ -855,7 +866,7 @@ step3:
     
     for (size_t col = 0; col < N; col++)
     {
-        if ((mark_cols[col] & Mark::COVER) == 0) {
+        if ((mark_cols[col] & Mark::COVER) != 0) {
             //uncovered -> skip
             continue;
         }
