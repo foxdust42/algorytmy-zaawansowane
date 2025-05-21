@@ -33,6 +33,18 @@ static struct cag_option options[] = {
         .access_letters = "h",
         .access_name = "help",
         .description = "Show help text"
+    },
+    {
+        .identifier = 'g',
+        .access_letters = "g",
+        .access_name = "generate",
+        .description = "Run problem generator\n",
+    },
+    {
+        .identifier = 'b',
+        .access_letters = "b",
+        .access_name = "benchmark",
+        .description = "run program benchamrking"
     }
 };
 
@@ -106,9 +118,13 @@ int main(int argc, char *argv[])
     const char * value = NULL;
     cag_option_context context;
     cag_option_init(&context, options, CAG_ARRAY_SIZE(options), argc, argv);
+    const char * tmp;
 
     std::string infile;
     std::string outfile;
+
+    bool run_gen = false;
+    bool run_bench = false;
 
     bool infile_set = false;
     bool outfile_set = false;
@@ -137,10 +153,19 @@ int main(int argc, char *argv[])
             printf("%s", format_help);
             return 0;
         
+        case 'g':
+            run_gen = true;
+            break;
+
+        case 'b':
+            run_bench = true;
+            break;
+
         case 'h':
             printf("Usage: %s [OPTION]\n", prog_name);
             cag_option_print(options, CAG_ARRAY_SIZE(options), stdout);
             return 0;
+
         case '?':
         default:
             break;
@@ -153,11 +178,39 @@ int main(int argc, char *argv[])
         std::strftime(time_string, 50, "%F-%T", std::localtime(&now));
         outfile = "Studnie_" + std::string(time_string) + ".txt";
     }
+    
+    if (run_gen) {
+
+        std::vector<task> t;
+
+        std::cout << "Runnig generator in interactive mode" << std::endl;
+        t = generate_tasks_int();
+
+        if(t.empty()) {
+            std::cout << "Nothing to output\n";
+            return 0;
+        }
+
+        if (!outfile_set) {
+            outfile = "Problem_" + outfile;
+        }
+
+        write_tasks(outfile, t);
+
+        std::cout << "Wrote " << t.size() << " problems to " << outfile << "\n";
+
+        return 0;
+    }
+
+    if(run_bench) {
+        run_benchmark();
+        return 0;
+    }
+
     std::cout << "outfile:" << std::endl; 
     std::cout << outfile << std::endl;
     std::cout << "infile:" << std::endl;
     std::cout << infile << std::endl;
-    
     std::vector<task> tasks;
     
     try

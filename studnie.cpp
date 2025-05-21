@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <chrono>
 
 long double distance(const point& p1, const point &p2) noexcept {
     long double dx = (long double)( p2.x - p1.x);
@@ -133,6 +134,224 @@ void write_results(std::string filename, std::vector<result> &res) {
     }
     
     out.close();
+}
+
+void write_tasks(std::string filename,std::vector<task> &tasks) {
+    std::ofstream out(filename, std::ios::out | std::ios::trunc);
+
+    out << tasks.size() << std::endl << std::endl;
+
+    for (ll i=0; i< tasks.size(); ++i) {
+        out << tasks[i].studnie.size() << " " << tasks[i].mult << std::endl << std::endl;
+
+        for(const auto &s : tasks[i].studnie) {
+            out << "(" << s.x << ", " << s.y << ")" << std::endl;
+        }
+        out << std::endl;
+
+        for (const auto &d : tasks[i].domy) {
+            out << "(" << d.x << ", " << d.y << ")" << std::endl;
+        }
+        out << std::endl;
+    }
+    out.close();
+}
+
+template <class IntType = int>
+class _generator {
+    public:
+    virtual IntType get_next(void) = 0; 
+};
+
+template <class IntType = int>
+class _static_generator : public _generator<IntType> {
+    private:
+    const IntType value;
+    public: 
+    _static_generator(IntType val) : value(val) {
+    }
+    IntType get_next(void) override {
+        return value;
+    }
+};
+
+template <class IntType = int>
+class _uniform_generator : public _generator<IntType> {
+    private:
+    std::uniform_int_distribution<IntType> rand_dist;
+    std::mt19937 * r_source;
+    public: 
+    _uniform_generator(std::mt19937 * rand_source, IntType val_low, IntType val_high) {
+        r_source = rand_source;
+        rand_dist = std::uniform_int_distribution<IntType>(val_low, val_high);
+    }
+    IntType get_next(void) override {
+        return rand_dist(*r_source);
+    }
+};
+
+std::vector<task> _generate_tasks(
+    unsigned int  count,            unsigned int  coord_lim,
+    unsigned int  stud_count,       unsigned int  mult,
+    unsigned int *stud_count_high,  unsigned int *mult_high)
+{
+    std::vector<task> tasks;
+
+    std::random_device rd;
+    std::mt19937 mt(rd());
+
+    std::uniform_int_distribution<ll> r_coords(- ll(coord_lim), ll(coord_lim));
+
+    _generator<unsigned int> * stud_count_gen;
+    _generator<unsigned int> * mult_gen;
+
+    if(stud_count_high != nullptr && *stud_count_high != stud_count) {
+        uint cl = stud_count;
+        uint ch = *stud_count_high;
+        if (cl > ch ) std::swap(cl ,ch);
+        stud_count_gen = new _uniform_generator<unsigned int>(&mt, cl, ch);    
+    }
+    else {
+        stud_count_gen = new _static_generator<unsigned int>(stud_count);
+    }
+
+    if(mult_high != nullptr && *mult_high != mult) {
+        uint ml = mult;
+        uint mh = *mult_high;
+        if (ml > mh ) std::swap(ml ,mh);
+        mult_gen = new _uniform_generator<unsigned int>(&mt, ml, mh);    
+    }
+    else {
+        mult_gen = new _static_generator<unsigned int>(mult);
+    }
+
+    for (ll i = 0; i < count; i++) {
+
+        ll studnie = stud_count_gen->get_next();
+        ll mult = mult_gen->get_next();
+
+        task t;
+
+        t.mult = mult;
+
+        for (ll s = 0; s < studnie; s++)
+        {
+            t.studnie.push_back(point{.idx = s, .x = r_coords(mt), .y = r_coords(mt)});
+        }
+        
+        for (ll d = 0; d < studnie * t.mult; d++)
+        {
+            t.domy.push_back(point{.idx = d, .x = r_coords(mt), .y = r_coords(mt)});
+        }
+
+        tasks.push_back(t);
+    }
+
+    delete stud_count_gen;
+    delete mult_gen;
+
+    return tasks;
+}
+
+std::vector<task> generate_tasks_int(void) {
+
+    ll to_create;
+    uint coord_lim;
+    uint well_count;
+    uint well_count_upper;
+    uint mult;
+    uint mult_upper;
+
+    std::string ok;
+
+    while (true)
+    {
+        std::cout << "Specify number of tasks to create (<=0 to abort): ";
+        std::cin >> to_create;
+
+        if (to_create <= 0) {
+            std::cout << "aborting generation...\n";
+            return {};
+        }
+
+        std::cout << "specify coordinate limit (-lim <= x, y <= lim): ";
+        std::cin >> coord_lim;
+
+        std::cout << "specify well count lower bound: ";
+        std::cin >> well_count;
+
+        std::cout << "specify well count upper bound: ";
+        std::cin >> well_count_upper;
+
+        std::cout << "specify mult lower bound (# houses = {well_count} * {mult}): ";
+        std::cin >> mult;
+
+        std::cout << "specify mult upper bound: ";
+        std::cin >> mult_upper;
+
+        std::cout << "\nWill generate " << to_create << " tasks\n"
+            << "With coordinates within a " << coord_lim << " unit square around the origin (0,0)\n"
+            << "With between " << well_count <<  " and " << well_count_upper << " wells \n"
+            << "And between " << mult << " and " << mult_upper << " houses per well\n"
+            << "Proceed with generation (Y/n)?: ";
+
+        ok.clear();
+        std::cin >> ok;
+        if (ok == "Y") { break; }
+
+        std::cout << "Starting over...\n\n";
+    }
+    
+    return _generate_tasks(to_create, coord_lim,
+            well_count, mult,
+            &well_count_upper, &mult_upper);
+}
+
+std::vector<task> generate_tasks_str(std::string s) {
+    return {};
+}
+
+void run_benchmark(void) {
+
+    uint no_tasks_per = 1000;
+    
+    uint low_wells = 2;
+    uint high_wells = 30;
+    uint mult = 5;
+
+    
+    std::vector<std::pair<uint, std::chrono::milliseconds>> timer_results;
+    for (uint i = low_wells; i <= high_wells; i++)
+    {
+        const auto tasks = _generate_tasks(no_tasks_per, 100, 
+            i, mult,
+            &i, &mult
+        );
+
+        std::vector<result> res;
+        auto t0 = std::chrono::high_resolution_clock::now(); 
+        for(const task &t : tasks) {
+            res.push_back(studnie2(t));
+        }
+        auto t1 = std::chrono::high_resolution_clock::now();
+
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
+
+        timer_results.push_back(std::make_pair(i, ms));      
+        std::cout << "Done with " << std::to_string(i) << "\n"; 
+    }
+    
+    std::string out;
+
+    out = "\"No. wells\", \"total time (ms)\"\n";
+
+    for (auto &&res : timer_results)
+    {
+        out += std::to_string(res.first) + ", " + std::to_string(res.second.count()) + "\n";
+    }
+    
+    std::cout << out;
+            
 }
 
 enum Mark {
