@@ -15,11 +15,13 @@ Przy uruchamianiu programu wymagane są dwa argumenty do poprawnego działania p
 - `-o output_path` (gdzie `output-path` to ścieżka do pliku wyjściowego) - określenie gdzie wygenerowany zostanie plik wyjściowy
 
 ### Dodatkowe flagi
-- `.\studnie.exe -f` wypisze format plików wejściowych i wyjściowych
-- `.\studnie.exe -h` wyświetli tekst "pomoc"
+- `-g` - uruchomienie interaktywnego generatora plików wejściowych. Można łączyć z flagą `-o`
+- `-b` - aktywuje benchmarking aplikacji
+- `--help-format` wypisze format plików wejściowych i wyjściowych
+- `-h` wyświetli tekst "pomoc"
 
 ## format in
-
+```
 ilość zadań
 
 ilość_studni wielokrotność
@@ -35,9 +37,9 @@ ilość_studni wielokrotność
 (xmn, xmn)
 
 [kolejne zadanie]
-
+```
 ## format out
-
+```
 ilość zadań
 
 koszt
@@ -47,3 +49,4 @@ koszt
 (sn, dmn)
 
 [kolejne zadanie]
+```
