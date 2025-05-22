@@ -4,6 +4,9 @@
 #include <queue>
 #include <chrono>
 
+typedef unsigned int uint;
+typedef long long int ll;
+
 long double distance(const point& p1, const point &p2) noexcept {
     long double dx = (long double)( p2.x - p1.x);
     long double dy = (long double)( p2.y - p1.y);
@@ -82,9 +85,9 @@ std::vector<task> load_file(std::string filename) {
             sscanf(line.c_str(), "(%lld, %lld)", &x, &y);
 
             point p{
-                .idx = j,
-                .x = x,
-                .y = y
+                j,
+                x,
+                y
             };
 
             tasks[i].studnie.push_back(p);
@@ -101,9 +104,9 @@ std::vector<task> load_file(std::string filename) {
             sscanf(line.c_str(), "(%lld, %lld)", &x, &y);
 
             point p{
-                .idx = j,
-                .x = x,
-                .y = y
+                j,
+                x,
+                y
             };
 
             tasks[i].domy.push_back(p);
@@ -236,12 +239,12 @@ std::vector<task> _generate_tasks(
 
         for (ll s = 0; s < studnie; s++)
         {
-            t.studnie.push_back(point{.idx = s, .x = r_coords(mt), .y = r_coords(mt)});
+            t.studnie.push_back(point{s, r_coords(mt), r_coords(mt)});
         }
         
         for (ll d = 0; d < studnie * t.mult; d++)
         {
-            t.domy.push_back(point{.idx = d, .x = r_coords(mt), .y = r_coords(mt)});
+            t.domy.push_back(point{d, r_coords(mt), r_coords(mt)});
         }
 
         tasks.push_back(t);
@@ -457,7 +460,7 @@ result studnie2(const task &t) {
             bool is_zero = false;
             if (c[stud][dom] == 0.0l) {
                 is_zero = true;
-                zeros.push_back(Zero{.stud = stud, .dom = dom});
+                zeros.push_back(Zero{stud, dom});
             }
             if ((mark_cols[dom]  & Mark::STAR) != 0 ||
                 (mark_rows[stud] & Mark::STAR) != 0){
@@ -562,7 +565,7 @@ step2:
         }
         if (!found_0st) break;
 
-        zero_seq.push_back(Zero{.stud = row_0st, .dom = zero_seq[zero_seq.size()-1].dom});
+        zero_seq.push_back(Zero{row_0st, zero_seq[zero_seq.size()-1].dom});
 
         // find 0' in current head's row
         // it must exist
@@ -581,7 +584,7 @@ step2:
         }
         if (!found_0pr) throw std::runtime_error("Algorithm error: impossible zero sequence");
 
-        zero_seq.push_back(Zero{.stud = zero_seq[zero_seq.size()-1].stud, .dom = col_0pr });
+        zero_seq.push_back(Zero{zero_seq[zero_seq.size()-1].stud, col_0pr });
     }
     
     for ( Zero & z : zero_seq)
@@ -671,7 +674,7 @@ step3:
         {
             if (c[row][col] == 0.0l)
             {
-                zeros.push_back(Zero{.stud = row, .dom = col});
+                zeros.push_back(Zero{row, col});
             }
         }
     }
