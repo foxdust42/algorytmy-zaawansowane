@@ -3,6 +3,7 @@
 #include <fstream>
 #include <queue>
 #include <chrono>
+#include <iomanip>
 
 long double distance(const point& p1, const point &p2) noexcept {
     long double dx = (long double)( p2.x - p1.x);
@@ -121,11 +122,13 @@ void write_results(std::string filename, std::vector<result> &res) {
 
     std::ofstream out(filename, std::ios::out | std::ios::trunc);
 
+    out.precision(10);
+
     out << res.size() << std::endl << std::endl;
 
     for (ll i = 0 ; i < res.size(); i++){
 
-        out << res[i].total_cost << std::endl;
+        out << std::fixed << res[i].total_cost << std::endl;
         
         for (const auto &m : res[i].matching) {
             out << "(" << m.first << ", " << m.second << ")" << std::endl;
@@ -269,6 +272,13 @@ std::vector<task> generate_tasks_int(void) {
         std::cout << "Specify number of tasks to create (<=0 to abort): ";
         std::cin >> to_create;
 
+        if (std::cin.fail()) {
+            std::cout << "Input is not a whole number\n";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<unsigned int>::max(), '\n');
+            continue;
+        }
+
         if (to_create <= 0) {
             std::cout << "aborting generation...\n";
             return {};
@@ -277,27 +287,27 @@ std::vector<task> generate_tasks_int(void) {
         std::cout << "specify coordinate limit (-lim <= x, y <= lim): ";
         std::cin >> coord_lim;
 
-        std::cout << "specify well count lower bound: ";
+        std::cout << "specify well count lower bound (inclusive): ";
         std::cin >> well_count;
 
-        std::cout << "specify well count upper bound: ";
+        std::cout << "specify well count upper bound (inclusive): ";
         std::cin >> well_count_upper;
 
-        std::cout << "specify mult lower bound (# houses = {well_count} * {mult}): ";
+        std::cout << "specify mult lower bound (inclusive)  (# houses = {well_count} * {mult}): ";
         std::cin >> mult;
 
-        std::cout << "specify mult upper bound: ";
+        std::cout << "specify mult upper bound (inclusive): ";
         std::cin >> mult_upper;
 
         std::cout << "\nWill generate " << to_create << " tasks\n"
-            << "With coordinates within a " << coord_lim << " unit square around the origin (0,0)\n"
-            << "With between " << well_count <<  " and " << well_count_upper << " wells \n"
-            << "And between " << mult << " and " << mult_upper << " houses per well\n"
-            << "Proceed with generation (Y/n)?: ";
+            << "With coordinates in [-" << coord_lim << ", " << coord_lim << "]^2 \n"
+            << "With number of wells in [" << well_count <<  ", " << well_count_upper << "] \n"
+            << "And number of houses per well in [" << mult << ", " << mult_upper << "]\n"
+            << "Proceed with generation (y/n)?: ";
 
         ok.clear();
         std::cin >> ok;
-        if (ok == "Y") { break; }
+        if (ok == "Y" || ok == "y") { break; }
 
         std::cout << "Starting over...\n\n";
     }
