@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     if (! outfile_set){
         char time_string[50];
         std::time_t now = std::time(nullptr);
-        std::strftime(time_string, 50, "%F-%T", std::localtime(&now));
+        std::strftime(time_string, 50, "%F_%H-%M-%S", std::localtime(&now));
         outfile = "Studnie_" + std::string(time_string) + ".txt";
     }
     

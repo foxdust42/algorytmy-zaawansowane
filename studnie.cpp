@@ -209,8 +209,8 @@ std::vector<task> _generate_tasks(
     _generator<unsigned int> * mult_gen;
 
     if(stud_count_high != nullptr && *stud_count_high != stud_count) {
-        uint cl = stud_count;
-        uint ch = *stud_count_high;
+        unsigned int cl = stud_count;
+        unsigned int ch = *stud_count_high;
         if (cl > ch ) std::swap(cl ,ch);
         stud_count_gen = new _uniform_generator<unsigned int>(&mt, cl, ch);    
     }
@@ -219,8 +219,8 @@ std::vector<task> _generate_tasks(
     }
 
     if(mult_high != nullptr && *mult_high != mult) {
-        uint ml = mult;
-        uint mh = *mult_high;
+        unsigned int ml = mult;
+        unsigned int mh = *mult_high;
         if (ml > mh ) std::swap(ml ,mh);
         mult_gen = new _uniform_generator<unsigned int>(&mt, ml, mh);    
     }
@@ -259,11 +259,11 @@ std::vector<task> _generate_tasks(
 std::vector<task> generate_tasks_int(void) {
 
     ll to_create;
-    uint coord_lim;
-    uint well_count;
-    uint well_count_upper;
-    uint mult;
-    uint mult_upper;
+    unsigned int coord_lim;
+    unsigned int well_count;
+    unsigned int well_count_upper;
+    unsigned int mult;
+    unsigned int mult_upper;
 
     std::string ok;
 
@@ -323,15 +323,15 @@ std::vector<task> generate_tasks_str(std::string s) {
 
 void run_benchmark(void) {
 
-    uint no_tasks_per = 1000;
+    unsigned int no_tasks_per = 1000;
     
-    uint low_wells = 2;
-    uint high_wells = 30;
-    uint mult = 5;
+    unsigned int low_wells = 2;
+    unsigned int high_wells = 30;
+    unsigned int mult = 5;
 
     
-    std::vector<std::pair<uint, std::chrono::milliseconds>> timer_results;
-    for (uint i = low_wells; i <= high_wells; i++)
+    std::vector<std::pair<unsigned int, std::chrono::milliseconds>> timer_results;
+    for (unsigned int i = low_wells; i <= high_wells; i++)
     {
         const auto tasks = _generate_tasks(no_tasks_per, 100, 
             i, mult,
